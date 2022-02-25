@@ -112,9 +112,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'bulletin',
         'USER': 'root',
-        'PASSWORD': 'earthyoung26@@',
+        'PASSWORD': 'your_db_password',
         'HOST': '',
-        'PORT': '3305',
+        'PORT': 'your_port_number',
     }
 }
 
