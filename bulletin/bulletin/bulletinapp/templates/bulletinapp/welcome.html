@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet" />
+    <title>Webpage</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap');
+        div{height:200px}
+        body{text-align:center ; font-family: 'Do Hyeon', sans-serif;}
+    </style>
+</head>
+<body class="container">
+    <div></div>
+    <h1>Webpage</h1>
+    <button type="button" class="btn btn-primary" onclick="location.href='login'">로그인</button>
+    <button type="button" class="btn btn-primary" onclick="location.href='join'">회원가입</button>
+</body>
+</html>

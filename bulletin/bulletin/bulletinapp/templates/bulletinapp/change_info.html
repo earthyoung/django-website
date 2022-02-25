@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap');
+        body{text-align:center ; font-family: 'Do Hyeon', sans-serif;}
+        label{text-align:left}
+        .form-control{margin:10px}
+        .col-sm-3{margin-top:auto ; margin-bottom:auto}
+        #user{color:var(--mainColor); display:inline-block}
+        #ok{color:var(--mainColor)}
+        #no{color:var(--errorColor)}
+    </style>
+    <title>Webpage</title>
+</head>
+<body class="container">
+    <h1>MY PAGE</h1>
+    <h2><div id="user">{{user.username}}</div>님, 환영합니다!</h2>
+    <h3>개인정보 변경하기</h3>
+    {% if ok_msg %}
+        <h5 id="ok">{{ ok_msg }}</h5>
+        <button type="button" class="btn btn-primary" onclick="location.href={% url 'bulletinapp:my_page' %}">마이 페이지</button>
+    {% else %}
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <button type="submit" class="btn btn-primary">변경</button>
+            <button type="button" class="btn btn-primary" onclick="location.href={% url 'bulletinapp:my_page' %}">다음에 변경하기</button>
+        </form>
+        {% if no_msg %}
+            <br><h5 id="no">{{ no_msg }}</h5>
+        {% endif %}
+    {% endif %}
+</body>
+</html>
