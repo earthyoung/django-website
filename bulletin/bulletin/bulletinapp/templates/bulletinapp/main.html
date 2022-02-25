@@ -39,7 +39,7 @@
                 <tr>
                     <th scope="row">{{ forloop.counter }}</th>
                     <td>{{ post.writer.username }}</td>
-                    <td><a href="http://127.0.0.1:8000/post/{{ forloop.counter }}">{{ post.title }}</a></td>
+                    <td><a href="http://127.0.0.1:8000/post/{{ post.id }}">{{ post.title }}</a></td>
                     <td>{{ post.date }}</td>
                 </tr>
                 {% endfor %}
