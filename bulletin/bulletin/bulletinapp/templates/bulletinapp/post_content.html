@@ -8,27 +8,44 @@
     <title>Webpage:post</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap');
-        body{font-family:'Do Hyeon',sans-serif; text-align:center}
-        #users{display:inline-block ; color:var(--mainColor)}
+        body{font-family:'Do Hyeon',sans-serif;}
+        h1, h2{text-align:center}
+        .user{display:inline-block ; color:var(--mainColor)}
+        .d-grid gap-3{display:flex ; justify-content:center ; align-items:center ; box-align:center}
     </style>
 </head>
-<body>
+<body class="container">
     <br><header><h1>포스트 조회</h1></header><br>
     <div class="container">
         <div class="row">
-            <div class="col-md"><h2><div id="users">{{ user.username }}</div>님, 환영합니다!</h2></div>
+            <div class="col-md"><h2><div class="user">{{ user.username }}</div>님, 환영합니다!</h2></div>
             <div class="col-md">
                 <button type="button" class="btn btn-primary" onclick="location.href='http://127.0.0.1:8000/logout'">로그아웃</button>
                 <button type="button" class="btn btn-primary" onclick="location.href='http://127.0.0.1:8000/my_page'">마이페이지</button>
                 <button type="button" class="btn btn-primary" onclick="location.href='http://127.0.0.1:8000/'">메인 페이지로</button>
+                {% if is_writer %}
+                    <button type="button" class="btn btn-success" onclick="location.href='http://127.0.0.1:8000/update/{{ post.id }}'">글 수정하기</button>
+                    <button type="button" class="btn btn-danger" onclick="location.href='http://127.0.0.1:8000/delete/{{ post.id }}'">글 삭제하기</button>
+                {% endif %}
             </div>
         </div>
-    </div>
-    <div>
-        <div>제목 {{ post.title }}</div>
-        <div>작성자 {{post.writer.username }}</div>
-        <div>작성일자 {{post.date }}</div>
-        <div>{{ post.content }}</div>
+    </div><br><br>
+    <div class="d-grid gap-3">
+        <div class="w-25 p-2 bg-light border">
+            <label class="col-sm-2 col-form-label"><div class="user">제목</div></label>
+            {{ post.title }}
+        </div>
+        <div class="w-25 p-2 bg-light border">
+            <label class="col-sm-2 col-form-label"><div class="user">작성자</div></label>
+            {{ post.writer.username }}
+        </div>
+        <div class="w-25 p-2 bg-light border">
+            <label class="col-sm-2 col-form-label"><div class="user">작성일자</div></label>
+            {{ post.date }}
+        </div>
+        <div class="w-50 p-2 bg-light border">
+            {{ post.content|linebreaksbr }}
+        </div>
     </div>
 </body>
 </html>
