@@ -1,24 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect, Http404
 from django.views import View
-from rest_framework import viewsets
-from rest_framework import permissions
-
-from .models import *
 from .forms import *
 from .serializers import *
 
 post_number = len(Post.objects.all()) + 1
-
-
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
 
 class LoginView(View):
@@ -126,11 +111,11 @@ class ChangeInfoView(View):
 
 
 class CreateView(View):
-    form_class = CreateForm
+    form_class = CreatePostForm
     template_name = 'bulletinapp/create.html'
 
     def get(self, request):
-        form = self.form_class()
+        form = self.form_class(initial={'content': "내용을 \n입력하세요"})
         user_id = request.session.get('id')
         user = get_object_or_404(User, pk=user_id)
         return render(request, self.template_name, {'user': user, 'form': form})
@@ -146,6 +131,28 @@ class CreateView(View):
                       {'user': user, 'form': self.form_class(), 'no_msg': "게시물 저장이 되지 않았습니다. 다시 작성해 주세요."})
 
 
+class UpdateView(View):
+    form_class = CreatePostForm
+    template_name = 'bulletinapp/create.html'
+
+    def get(self, request, pk):
+        user = get_object_or_404(User, pk=request.session.get('id'))
+        post = get_object_or_404(Post, pk=pk)
+        if post.writer != user:
+            raise Http404('you cannot update posts written by others.')
+        form = self.form_class({'title': post.title, 'content': post.content})
+        return render(request, self.template_name, {'user': user, 'form': form, 'is_update': 'yes'})
+
+    def post(self, request, pk):
+        user = get_object_or_404(User, pk=request.session.get('id'))
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            if form.update_post(pk):
+                return render(request, self.template_name, {'user': user, 'form': form, 'ok_msg': "게시물이 변경되었습니다."})
+        return render(request, self.template_name,
+                      {'user': user, 'form': self.form_class(), 'no_msg': "게시물이 변경되지 않았습니다. 다시 시도해 주세요."})
+
+
 class ContentView(View):
     template_name = 'bulletinapp/post_content.html'
 
@@ -153,6 +160,9 @@ class ContentView(View):
         user_id = request.session.get('id')
         user = get_object_or_404(User, pk=user_id)
         post = get_object_or_404(Post, pk=post_id)
+        if post.writer == user:
+            return render(request, self.template_name, {'user': user, 'post': post,
+                                                        'is_writer': 'yes'})
         return render(request, self.template_name, {'user': user, 'post': post})
 
 
@@ -181,14 +191,14 @@ def session_info(request):
     return user_data
 
 
-# mixin 배우고나면 url에 할당하지 않고 mixin 기능으로 해당 페이지에서 처리할 예정 1
+# 추후 mixin 기능으로 url 할당 없이 처리할 예정 - 1
 def logout(request):
     if request.session.get('id'):
         del (request.session['id'])
     return redirect('/')
 
 
-# mixin 배우고나면 url에 할당하지 않고 mixin 기능으로 해당 페이지에서 처리할 예정 2
+# 추후 mixin 기능으로 url 할당 없이 처리할 예정 - 2
 def account_withdrawal(request):
     if request.method == 'GET':
         form = DeleteUserForm()
@@ -196,8 +206,16 @@ def account_withdrawal(request):
     elif request.method == 'POST':
         form = DeleteUserForm(request.POST)
         if form.is_valid():
-            user_id = form.cleaned_data['id']
-            user_pw = form.cleaned_data['password']
-            if form.delete_validate(user_id, user_pw):
+            if form.delete_validate():
                 return render(request, 'bulletinapp/withdrawal.html', {'msg_ok': "회원 탈퇴가 완료되었습니다."})
         return render(request, 'bulletinapp/withdrawal.html', {'msg_no': "잘못된 정보를 입력하였습니다."})
+
+# 추후 mixin 기능으로 url 할당 없이 처리할 예정 - 3
+def post_delete(request, pk):
+    if request.method == 'GET':
+        user = get_object_or_404(User, pk=request.session.get('id'))
+        post = get_object_or_404(Post, pk=pk)
+        if post.writer == user:
+            post.delete()
+            return render(request, 'bulletinapp/post_deleted.html', {'user': user})
+        return redirect('/')
