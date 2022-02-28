@@ -5,7 +5,7 @@ import datetime
 
 class User(models.Model):
     id = models.CharField(max_length=20, primary_key=True)
-    password = models.CharField(max_length=20)
+    password = models.CharField(max_length=100)
     username = models.CharField(max_length=20, unique=True)
     email = models.EmailField(default=None)
     sign_up_date = models.DateTimeField('date registered')
@@ -22,6 +22,4 @@ class Post(models.Model):
 
     class Meta:
         db_table = 'post'
-
-
 
