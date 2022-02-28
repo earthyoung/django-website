@@ -3,8 +3,6 @@ from django.views import View
 from .forms import *
 from .serializers import *
 
-post_number = len(Post.objects.all()) + 1
-
 
 class LoginView(View):
     form_class = LoginForm
@@ -35,10 +33,16 @@ class JoinView(View):
     def post(self, request):
         msg = ""
         form = self.form_class(request.POST)
-        if form.is_valid():
-            msg = form.join_validate()
-            return render(request, self.template_name, {'form': form, 'msg': msg})
-        return render(request, self.template_name, {'form': self.form_class(), 'msg': "입력값이 유효하지 않습니다."})
+        try:
+            if form.is_valid():
+                print("폼은 유효합니다.")
+                msg = form.join_validate()
+                return render(request, self.template_name, {'form': form, 'msg': msg})
+        except Exception as err:
+            msg = str(err)
+            print(msg)
+        print("에러가 발생했습니다.")
+        return render(request, self.template_name, {'form': self.form_class(), 'msg': msg})
 
 
 class MainView(View):
@@ -125,6 +129,7 @@ class CreateView(View):
         user = get_object_or_404(User, pk=user_id)
         form = self.form_class(request.POST)
         if form.is_valid():
+            post_number = get_post_number()
             if form.create_post(post_number, user):
                 return render(request, self.template_name, {'user': user, 'form': form, 'ok_msg': "게시물이 저장되었습니다."})
         return render(request, self.template_name,
@@ -214,8 +219,15 @@ def account_withdrawal(request):
 def post_delete(request, pk):
     if request.method == 'GET':
         user = get_object_or_404(User, pk=request.session.get('id'))
-        post = get_object_or_404(Post, pk=pk)
+        post = Post.objects.get(id=pk)
         if post.writer == user:
             post.delete()
             return render(request, 'bulletinapp/post_deleted.html', {'user': user})
         return redirect('/')
+
+def get_post_number():
+    post_number = 0
+    recent_post = Post.objects.order_by('-id')[:1]  # 현재 최대 post id + 1 인 값을 반환
+    for post in recent_post:
+        post_number = post.id + 1
+        return post_number
