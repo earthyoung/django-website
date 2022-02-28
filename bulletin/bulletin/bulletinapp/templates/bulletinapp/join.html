@@ -17,10 +17,25 @@
     <h1>JOIN PAGE</h1>
     <form action="" method="post">
         {% csrf_token %}
-        {{ form }}
+        <div class="mb-3">
+            {{ form.id.label }}<br>
+            {{ form.id }}
+            <br><br>
+            {{ form.password.label }}<br>
+            {{ form.password }}
+            <br><br>
+            {{ form.password_confirm.label }}<br>
+            {{ form.password_confirm }}
+            <br><br>
+            {{ form.username.label }}<br>
+            {{ form.username }}
+            <br><br>
+            {{ form.email.label }}<br>
+            {{ form.email }}
+        </div><br>
         <button type="submit" class="btn btn-primary">회원가입</button>
+        <button type="button" class="btn btn-primary" onclick="location.href='http://127.0.0.1:8000/'">시작 페이지로</button><br>
     </form>
-    <button type="button" class="btn btn-primary" onclick="location.href='http://127.0.0.1:8000/'">시작 페이지로</button><br>
     {% if msg %}
     <h5>{{ msg }}</h5>
     {% endif %}
