@@ -11,7 +11,7 @@
         body{font-family:'Do Hyeon',sans-serif;}
         h1, h2{text-align:center}
         .user{display:inline-block ; color:var(--mainColor)}
-        .d-grid gap-3{display:flex ; justify-content:center ; align-items:center ; box-align:center}
+        #content{text-align:center}
     </style>
 </head>
 <body class="container">
@@ -31,19 +31,19 @@
         </div>
     </div><br><br>
     <div class="d-grid gap-3">
-        <div class="w-25 p-2 bg-light border">
+        <div class="w-100 p-2 bg-light border">
             <label class="col-sm-2 col-form-label"><div class="user">제목</div></label>
             {{ post.title }}
         </div>
-        <div class="w-25 p-2 bg-light border">
+        <div class="w-100 p-2 bg-light border">
             <label class="col-sm-2 col-form-label"><div class="user">작성자</div></label>
             {{ post.writer.username }}
         </div>
-        <div class="w-25 p-2 bg-light border">
+        <div class="w-100 p-2 bg-light border">
             <label class="col-sm-2 col-form-label"><div class="user">작성일자</div></label>
             {{ post.date }}
         </div>
-        <div class="w-50 p-2 bg-light border">
+        <div class="w-100 p-2 bg-light border" id="content">
             {{ post.content|linebreaksbr }}
         </div>
     </div>
