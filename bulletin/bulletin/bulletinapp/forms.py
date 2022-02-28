@@ -1,6 +1,8 @@
 from django import forms
 from datetime import datetime
-from .models import User, Post
+from .models import Post
+from .validators import *
+import bcrypt
 
 
 class ChangeEmailForm(forms.Form):
@@ -70,7 +72,9 @@ class CreatePostForm(forms.Form):
             )
             new_post.save()
             return True
-        except Exception:
+        except Exception as err:
+            print(err)
+            print("=================Exception occurred================")
             return False
 
     def update_post(self, post_id):
@@ -111,14 +115,13 @@ class DeleteUserForm(forms.Form):
 
 
 class JoinForm(forms.Form):
-    id = forms.CharField()
-    password = forms.CharField(widget=forms.PasswordInput)
+    id = forms.CharField(min_length=5, max_length=20, validators=[validate_id])
+    password = forms.CharField(widget=forms.PasswordInput, min_length=8, max_length=20, validators=[validate_pw])
     password_confirm = forms.CharField(widget=forms.PasswordInput)
-    username = forms.CharField()
+    username = forms.CharField(min_length=3, max_length=20, validators=[validate_name])
     email = forms.EmailField()
 
     def join_validate(self):
-        validation_1 = validation_2 = False
         user_id = self.cleaned_data['id']
         pw = self.cleaned_data['password']
         pw_conf = self.cleaned_data['password_confirm']
@@ -127,28 +130,18 @@ class JoinForm(forms.Form):
 
         if pw != pw_conf:
             return "비밀번호와 비밀번호 확인필드가 일치하지 않습니다."
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            validation_1 = True
-        try:
-            user = User.objects.get(username=name)
-        except User.DoesNotExist:
-            validation_2 = True
 
-        if validation_1 and validation_2:
-            new_user = User.objects.create(
-                id=user_id,
-                password=pw,
-                username=name,
-                email=user_email,
-                sign_up_date=datetime.now(),
-            )
-            return "회원가입이 완료되었습니다."
-        elif not validation_1:
-            return "중복되는 아이디입니다."
-        elif not validation_2:
-            return "중복되는 사용자 이름입니다."
+        pw_bcrypt = bcrypt.hashpw(pw.encode('utf-8'), bcrypt.gensalt())
+        hashed_pw = pw_bcrypt.decode('utf-8')
+        new_user = User.objects.create(
+            id=user_id,
+            password=hashed_pw,
+            username=name,
+            email=user_email,
+            sign_up_date=datetime.now(),
+        )
+        new_user.save()
+        return "회원가입이 완료되었습니다."
 
 
 class LoginForm(forms.Form):
@@ -157,14 +150,12 @@ class LoginForm(forms.Form):
 
     def login_validate(self):
         user_id = self.cleaned_data['id']
-        user_password = self.cleaned_data['password']
+        user_pw = self.cleaned_data['password']
         try:
             user = User.objects.get(id=user_id)
-            user_b = User.objects.get(password=user_password)
+            pw_db = user.password
+            result = bcrypt.checkpw(user_pw.encode('utf-8'), pw_db.encode('utf-8'))
+            if result:
+                return True
         except User.DoesNotExist:
             return False
-        if user == user_b:
-            return True
-        return False
-
-
